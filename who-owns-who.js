@@ -1,51 +1,32 @@
 const moneyTransfer = (
 	people,
-	result
+	moneyBalance
 ) => {
 	const [payers, debtors] = people;
-	console.log([payers, debtors]);
 	const final = {};
 	for (let i = 0; i < payers.length; i++) {
 		const payer = payers[i];
-		let tempSum = 0;
 		for (let j = 0; j < debtors.length; j++) {
 			const debtor = debtors[j];
-			if (result[payer] === 0) continue;
-			const normalized = Number.parseFloat((tempSum + result[debtor]).toFixed(3))
-			const payerNormalized = Number.parseFloat(Math.abs(result[payer]).toFixed(3))
-			if (normalized <= payerNormalized) {
-				tempSum += result[debtor];
-				console.log(final[debtor], tempSum);
-				if (final[debtor])
-					final[debtor].push({
-						to: payer,
-						sum: result[debtor]
-					});
-				else
-					final[debtor] = [
-						{
-							to: payer,
-							sum: result[debtor]
-						}
-					];
-			} else {
-				if (final[debtor])
-					final[debtor].push({
-						to: payer,
-						sum: Math.abs(result[payer])
-					});
-				else
-					final[debtor] = [
-						{
-							to: payer,
-							sum: Math.abs(result[payer])
-						}
-					];
-				result[debtor] -= Math.abs(result[payer]);
-				result[payer] = 0;
+			const normalizedDebtorPayment = Number.parseFloat(moneyBalance[debtor].toFixed(2))
+			const normalizedPayerPayment = Math.abs(Number.parseFloat(moneyBalance[payer].toFixed(2)))
+			if (normalizedDebtorPayment === 0 || normalizedPayerPayment === 0) continue;
+			if (normalizedDebtorPayment <= normalizedPayerPayment) {
+				if (final[debtor]) final[debtor].push({ to: payer, sum: normalizedDebtorPayment })
+				else final[debtor] = [{ to: payer, sum: normalizedDebtorPayment }]
+
+				moneyBalance[debtor] = 0
+				moneyBalance[payer] += normalizedDebtorPayment
+			}
+			else {
+				if (final[debtor]) final[debtor].push({ to: payer, sum: normalizedPayerPayment })
+				else final[debtor] = [{ to: payer, sum: normalizedPayerPayment }]
+				moneyBalance[debtor] -= normalizedPayerPayment
+				moneyBalance[payer] = 0
 			}
 		}
 	}
+	console.log({ moneyBalance });
 	return final;
 };
 
