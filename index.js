@@ -208,12 +208,13 @@ bot.onText(/\/echo (.+)/, (msg, match) => {
 });
 
 const getMessage = (data, result) => {
-  const { payers } = data
+  const { payers, billName } = data
   console.log(result);
-  return `Кто платил: ${Object.keys(payers).map((name, index, arr) => name + ` (${payers[name]} руб.)`)}
-  ${Object.keys(result).map((name) => {
+  return `# ${billName}
+Кто платил: ${Object.keys(payers).map((name, index, arr) => name + ` (${payers[name]} руб.)`)}
+${Object.keys(result).map((name) => {
     return result[name].map(el => {
-      return `\n ${name} должен ${el.to} ${el.sum.toFixed(1)} руб. `
+      return `\n${name} должен ${el.to} ${el.sum.toFixed(1)} руб. `
     })
   })}
   
@@ -240,7 +241,7 @@ bot.on("message", async (msg) => {
           web_app: { url: webAppUrl + 'add-contacts' }
         }, {
           text: 'Рассчитать чек',
-          web_app: { url: webAppUrl + 'choose-contacts' }
+          web_app: { url: webAppUrl + 'bill-name' }
         }]]
       }
     });
@@ -250,7 +251,7 @@ bot.on("message", async (msg) => {
     try {
       const data = JSON.parse(msg?.web_app_data?.data)
       console.log(JSON.stringify(data.list));
-      await bot.sendMessage(chatId, getMessage(data, whoOwnsWho(data.payers, data.list)))
+      await bot.sendMessage(chatId, getMessage(data, whoOwnsWho(data.payers, data.list)), { parse_mode: 'Markdown' })
     } catch (error) {
       console.error(error);
     }
